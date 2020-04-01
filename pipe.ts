@@ -9,7 +9,7 @@ class Pipe extends Transform {
         this.size.x = 100;
         this.counted = false;
         if (this.position.y == 0) {
-            this.element.css("transform", "rotate(180deg)");
+            this.element.css("transform", "rotate(180deg) scaleX(-1)");
         }
     }
 

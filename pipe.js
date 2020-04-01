@@ -22,7 +22,7 @@ var Pipe = /** @class */ (function (_super) {
         this.size.x = 100;
         this.counted = false;
         if (this.position.y == 0) {
-            this.element.css("transform", "rotate(180deg)");
+            this.element.css("transform", "rotate(180deg) scaleX(-1)");
         }
     };
     Pipe.prototype.Pre = function (world) {

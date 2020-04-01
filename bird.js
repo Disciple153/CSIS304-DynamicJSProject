@@ -19,10 +19,8 @@ var Bird = /** @class */ (function (_super) {
         return _this;
     }
     Bird.prototype.Init = function (world) {
-        this.size.x = 20;
-        this.size.y = 20;
-        this.element.css("background-color", "yellow");
-        this.element.css("color", "magenta");
+        this.size.x = 50;
+        this.size.y = 50;
         this.collidable = true;
     };
     Bird.prototype.Pre = function (world) {

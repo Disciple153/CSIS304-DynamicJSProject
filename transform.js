@@ -95,9 +95,6 @@ var Transform = /** @class */ (function () {
         var left;
         var top;
         var bottom;
-        if (!(_this instanceof Immovable)) {
-            _this.element.html(_this.id);
-        }
         world.ids.forEach(function (id) {
             that = world.gameObjects[id];
             // Check axis-aligned rectangle collision

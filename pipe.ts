@@ -1,12 +1,16 @@
 class Pipe extends Transform {
     private static speed: number = -200;
+    private counted: boolean;
 
 
     Init(world: World): void {
-        this.element.css("background-color", "green");
         this.position.x = MAX_WIDTH;
         this.collidable = true;
-        this.size.x = 150;
+        this.size.x = 100;
+        this.counted = false;
+        if (this.position.y == 0) {
+            this.element.css("transform", "rotate(180deg)");
+        }
     }
 
     Pre(world: World): void {
@@ -14,6 +18,12 @@ class Pipe extends Transform {
     }
 
     Post(world: World): void {
+        // Check to see if the player scored a point
+        if (!this.counted && world.player.position.x > this.position.x + this.size.x) {
+            this.counted = true;
+            Game.score += 0.5;
+        }
+
         // If pipe has left frame, delete it from the world and remove it from the DOM.
         if (this.position.x + this.size.x < 0) {
             this.toDelete = true;

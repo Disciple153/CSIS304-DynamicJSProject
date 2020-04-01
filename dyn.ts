@@ -6,8 +6,8 @@
 // *****************************************************************************
 const MAX_WIDTH = $(window).width() - 5;
 const MAX_HEIGHT = $(window).height() - 5;
-const NEW_PIPE_INCREMENT: number = 1000;
-const PIPE_GAP: number = 300;
+const NEW_PIPE_INCREMENT: number = 2250;
+const PIPE_GAP: number = 250;
 
 // *****************************************************************************
 // ENUMS
@@ -43,6 +43,7 @@ interface World {
     time: number;
     deltaTime: number;
     vMultiplier: number;
+    player: Bird;
 }
 
 interface Collision {
@@ -57,7 +58,8 @@ class Game {
     private static nextTransformID: number = 0;
     private static world: World;
     private static player: Bird;
-    public static state: State = State.play;
+    public static score: number = 0;
+    public static state: State = State.menu;
 
     static Delay(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -96,23 +98,44 @@ class Game {
     }
 
     static KeyDown(key : string): void {
-        console.log("KEY PRESSED: " + key);
+        switch (Game.state) {
+            case State.menu:
+                if (key == " ") {
+                    Game.state = State.play;
+                    Game.Play();
+                }
+                break;
+            case State.play:
+                if (key == " ") {
+                    Game.world.player.velocity.y -= 500;
+                }
+                break;
 
-        switch (key) {
-            case (" "): {
-                Game.player.velocity.y -= 500;
-            }
+
+            case State.gameOver:
+                if (key == " ") {
+                    Game.state = State.play;
+                    Game.Play();
+                }
+                break;
         }
     }
 
-// *****************************************************************************
-// MAIN FUNCTION
-// *****************************************************************************
-    static async main() {
+    static Menu() {
+        $("body").html(`<h1>Press the spacebar to play!<h1>`);
+    }
+
+    static async Play() {
         let newTime: number;
         let newPipe: Pipe;
         let newPipePos: number;
         let newPipeCountdown: number = 0;
+
+        Game.score = 0;
+
+        // Clear and initialize data;
+        Game.world = undefined;
+        $("body").html(`<br><h1 id="scoreboard"></h1>`);
 
         Game.world = {
             gameObjects: {},
@@ -121,7 +144,8 @@ class Game {
             movables: [],
             time: Date.now(),
             deltaTime: 0,
-            vMultiplier: 0
+            vMultiplier: 0,
+            player: Game.player
         };
 
         // Create collision for the screen
@@ -129,7 +153,6 @@ class Game {
         Game.world.gameObjects["bottomBorder"] = new Immovable(null, 0, MAX_HEIGHT, MAX_WIDTH, 1000, "bottomBorder");
         //Game.world.gameObjects["leftBorder"] = new Immovable(null, -1000, 0, 1000, MAX_HEIGHT, "leftBorder");
         //Game.world.gameObjects["rightBorder"] = new Immovable(null, MAX_WIDTH, 0, 1000, MAX_HEIGHT, "rightBorder");
-
 
         // Get all gameObjects and put them in a dictionary as transforms.
         Array.from($(".GameObject")).forEach(function (value) {
@@ -148,19 +171,17 @@ class Game {
             }
         });
 
-        // Add transforms via code.
-        Game.player = <Bird> Game.AddTransform("Bird", "player");
-        Game.player.position.x = MAX_WIDTH / 4;
-        Game.player.position.y = MAX_HEIGHT / 4;
-
-        Game.AddTransform("Pipe");
-
         // Run all Init functions.
         Game.world.ids.forEach(function (id) {
             Game.world.gameObjects[id].Init(Game.world);
         });
 
-        // noinspection InfiniteLoopJS
+        // Add transforms via code.
+        Game.world.player = <Bird> Game.AddTransform("Bird", "player");
+        Game.world.player.position.x = MAX_WIDTH / 4;
+        Game.world.player.position.y = MAX_HEIGHT / 4;
+        Game.world.player.Init(Game.world);
+
         while (Game.state == State.play) {
             // Update time
             newTime = Date.now();
@@ -220,7 +241,6 @@ class Game {
 
             // Correct collisions for GameObjects colliding with movables
             Game.world.movables.forEach(function (id, hash) {
-                //console.log(id);
                 Game.world.gameObjects[id].CorrectCollisions(hash + Game.world.immovables.length);
             });
 
@@ -267,11 +287,32 @@ class Game {
                 }
             }
 
+            // Update scoreboard
+            $("#scoreboard").html("Score: " + Game.score);
+
             // Limit to 100 fps
             if (Date.now() - Game.world.time <= 10) {
                 await Game.Delay(10);
             }
         }
+
+        Game.GameOver();
+    }
+
+    static GameOver() {
+        $("#scoreboard").html(`
+        Game Over <br>
+        Score: ${Game.score}<br>
+        Press the spacebar to play again!`);
+    }
+
+
+// *****************************************************************************
+// MAIN FUNCTION
+// *****************************************************************************
+    static main() {
+
+        Game.Menu();
     }
 }
 

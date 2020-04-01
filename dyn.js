@@ -40,8 +40,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 // *****************************************************************************
 var MAX_WIDTH = $(window).width() - 5;
 var MAX_HEIGHT = $(window).height() - 5;
-var NEW_PIPE_INCREMENT = 1000;
-var PIPE_GAP = 300;
+var NEW_PIPE_INCREMENT = 2250;
+var PIPE_GAP = 250;
 // *****************************************************************************
 // ENUMS
 // *****************************************************************************
@@ -90,23 +90,40 @@ var Game = /** @class */ (function () {
         return transform;
     };
     Game.KeyDown = function (key) {
-        console.log("KEY PRESSED: " + key);
-        switch (key) {
-            case (" "): {
-                Game.player.velocity.y -= 500;
-            }
+        switch (Game.state) {
+            case State.menu:
+                if (key == " ") {
+                    Game.state = State.play;
+                    Game.Play();
+                }
+                break;
+            case State.play:
+                if (key == " ") {
+                    Game.world.player.velocity.y -= 500;
+                }
+                break;
+            case State.gameOver:
+                if (key == " ") {
+                    Game.state = State.play;
+                    Game.Play();
+                }
+                break;
         }
     };
-    // *****************************************************************************
-    // MAIN FUNCTION
-    // *****************************************************************************
-    Game.main = function () {
+    Game.Menu = function () {
+        $("body").html("<h1>Press the spacebar to play!<h1>");
+    };
+    Game.Play = function () {
         return __awaiter(this, void 0, void 0, function () {
             var newTime, newPipe, newPipePos, newPipeCountdown, i, id, index;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         newPipeCountdown = 0;
+                        Game.score = 0;
+                        // Clear and initialize data;
+                        Game.world = undefined;
+                        $("body").html("<br><h1 id=\"scoreboard\"></h1>");
                         Game.world = {
                             gameObjects: {},
                             ids: [],
@@ -114,7 +131,8 @@ var Game = /** @class */ (function () {
                             movables: [],
                             time: Date.now(),
                             deltaTime: 0,
-                            vMultiplier: 0
+                            vMultiplier: 0,
+                            player: Game.player
                         };
                         // Create collision for the screen
                         Game.world.gameObjects["topBorder"] = new Immovable(null, 0, -1000, MAX_WIDTH, 1000, "topBorder");
@@ -136,15 +154,15 @@ var Game = /** @class */ (function () {
                                 Game.world.movables.push(id);
                             }
                         });
-                        // Add transforms via code.
-                        Game.player = Game.AddTransform("Bird", "player");
-                        Game.player.position.x = MAX_WIDTH / 4;
-                        Game.player.position.y = MAX_HEIGHT / 4;
-                        Game.AddTransform("Pipe");
                         // Run all Init functions.
                         Game.world.ids.forEach(function (id) {
                             Game.world.gameObjects[id].Init(Game.world);
                         });
+                        // Add transforms via code.
+                        Game.world.player = Game.AddTransform("Bird", "player");
+                        Game.world.player.position.x = MAX_WIDTH / 4;
+                        Game.world.player.position.y = MAX_HEIGHT / 4;
+                        Game.world.player.Init(Game.world);
                         _a.label = 1;
                     case 1:
                         if (!(Game.state == State.play)) return [3 /*break*/, 4];
@@ -194,7 +212,6 @@ var Game = /** @class */ (function () {
                         });
                         // Correct collisions for GameObjects colliding with movables
                         Game.world.movables.forEach(function (id, hash) {
-                            //console.log(id);
                             Game.world.gameObjects[id].CorrectCollisions(hash + Game.world.immovables.length);
                         });
                         // React to collisions
@@ -232,19 +249,33 @@ var Game = /** @class */ (function () {
                                 i--;
                             }
                         }
+                        // Update scoreboard
+                        $("#scoreboard").html("Score: " + Game.score);
                         if (!(Date.now() - Game.world.time <= 10)) return [3 /*break*/, 3];
                         return [4 /*yield*/, Game.Delay(10)];
                     case 2:
                         _a.sent();
                         _a.label = 3;
                     case 3: return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/];
+                    case 4:
+                        Game.GameOver();
+                        return [2 /*return*/];
                 }
             });
         });
     };
+    Game.GameOver = function () {
+        $("#scoreboard").html("\n        Game Over <br>\n        Score: " + Game.score + "<br>\n        Press the spacebar to play again!");
+    };
+    // *****************************************************************************
+    // MAIN FUNCTION
+    // *****************************************************************************
+    Game.main = function () {
+        Game.Menu();
+    };
     Game.nextTransformID = 0;
-    Game.state = State.play;
+    Game.score = 0;
+    Game.state = State.menu;
     return Game;
 }());
 // *****************************************************************************

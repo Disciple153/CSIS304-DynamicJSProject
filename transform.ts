@@ -135,10 +135,6 @@ class Transform {
         let top: number;
         let bottom: number;
 
-        if (!(_this instanceof Immovable)) {
-            _this.element.html(_this.id);
-        }
-
         world.ids.forEach(function (id) {
             that = world.gameObjects[id];
 

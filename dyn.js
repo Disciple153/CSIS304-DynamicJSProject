@@ -90,6 +90,7 @@ var Game = /** @class */ (function () {
         return transform;
     };
     Game.KeyDown = function (key) {
+        console.log(key);
         switch (Game.state) {
             case State.menu:
                 if (key == " ") {

@@ -98,6 +98,8 @@ class Game {
     }
 
     static KeyDown(key : string): void {
+        console.log(key);
+
         switch (Game.state) {
             case State.menu:
                 if (key == " ") {

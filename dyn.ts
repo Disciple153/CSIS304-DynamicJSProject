@@ -98,8 +98,6 @@ class Game {
     }
 
     static KeyDown(key : string): void {
-        console.log(key);
-
         switch (Game.state) {
             case State.menu:
                 if (key == " ") {
@@ -324,6 +322,10 @@ class Game {
 // This is deprecated, but there is no real alternative.
 $(document).keydown(function(e) {
     Game.KeyDown(e.originalEvent.key);
+});
+
+$(document).click(function (e) {
+    Game.KeyDown(" ");
 });
 
 /*

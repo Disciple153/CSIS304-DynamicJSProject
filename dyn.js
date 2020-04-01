@@ -90,7 +90,6 @@ var Game = /** @class */ (function () {
         return transform;
     };
     Game.KeyDown = function (key) {
-        console.log(key);
         switch (Game.state) {
             case State.menu:
                 if (key == " ") {
@@ -285,6 +284,9 @@ var Game = /** @class */ (function () {
 // This is deprecated, but there is no real alternative.
 $(document).keydown(function (e) {
     Game.KeyDown(e.originalEvent.key);
+});
+$(document).click(function (e) {
+    Game.KeyDown(" ");
 });
 /*
 
